@@ -42,16 +42,67 @@ exports.insert = function(values, done) {
 
 
 
-// once auctions alter has been sorted then copy into here
-exports.alter = function(updateOptions, done){
+exports.alter = function(updateOptions, done){                      //WHAT IF NO VALUES ARE CHANGED, HANDLING PASSWORD?
 
-    let values = [updateOptions.username, updateOptions.givenname, updateOptions.familyname, updateOptions.email, updateOptions.password, updateOptions.accountbalance, updateOptions.reputation, updateOptions.salt, updateOptions.token, updateOptions.id];
+    let query = 'UPDATE auction_user SET';
+    let qValues = [];
 
-    db.get_pool().query('UPDATE auction_user SET user_username=?, user_givenname=?, user_familyname=?, user_email=?, user_password=?, user_accountbalance=? user_reputation=?, user_salt=?, user_token=?  WHERE user_id=?', values, function(err, result){
+    if (updateOptions.id != undefined) {
+        query = query + ' user_id=?,';
+        qValues.push(updateOptions.id);
+    }
+    if (updateOptions.username != undefined) {
+        query = query + ' user_username=?,';
+        qValues.push(updateOptions.username);
+    }
+    if (updateOptions.givenname != undefined) {
+        query = query + ' user_givenname=?,';
+        qValues.push(updateOptions.givenname);
+    }
+    if (updateOptions.familyname != undefined) {
+        query = query + ' user_familyname=?,';
+        qValues.push(updateOptions.familyname);
+    }
+    if (updateOptions.email != undefined) {
+        query = query + ' user_email=?,';
+        qValues.push(updateOptions.email);
+    }
+    if (updateOptions.password != undefined) {
+        query = query + ' user_auction_reserveprice=?,';
+        qValues.push(updateOptions.password);
+    }
+    if (updateOptions.accountBalance != undefined) {
+        query = query + ' user_accountBalance=?,';
+        qValues.push(updateOptions.accountBalance);
+    }
+    if (updateOptions.reputation != undefined) {
+        query = query + ' user_reputation=?,';
+        qValues.push(updateOptions.reputation);
+    }
+    if (updateOptions.salt != undefined) {
+        query = query + ' user_salt=?,';
+        qValues.push(updateOptions.salt);
+    }
+    if (updateOptions.token != undefined) {
+        query = query + ' user_token=?,';
+        qValues.push(updateOptions.token);
+    }
 
-        //201 ok, 400 unauthorized
-        if(err) return done({ERROR:"Malformed request"});
+
+
+    query = query.substring(0, query.length-1) + ' WHERE user_id=?';
+    qValues.push(updateOptions.id);
+
+    console.log(query);
+    console.log(qValues);
+
+    db.get_pool().query(query, qValues, function(err, result){
+
+        //201 ok, 401 unauthorized
+        //if(err) return done({ERROR:"Malformed request"});
+        if(err) return done(err);
         done(result);
-    })
+    });
+
 };
-//change
+

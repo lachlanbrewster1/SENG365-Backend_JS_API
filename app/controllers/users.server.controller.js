@@ -40,7 +40,6 @@ exports.read = function (req, res) {
 };
 
 
-//change, also need to only update the rows included in query rather than all
 exports.update = function(req, res){
     let updateOptions = {
         "id" : req.params.id,
@@ -57,15 +56,10 @@ exports.update = function(req, res){
 
 
     User.alter(updateOptions, function(result){
-        if(result.ERROR){
-            res.status(400).send(result.ERROR)
-        }else {
-            res.status(200).send("Updated")
-        }
+        res.json(result);
 
     })
 };
-//change
 
 
 exports.login = function(req, res) {

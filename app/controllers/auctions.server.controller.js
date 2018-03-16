@@ -110,8 +110,3 @@ exports.update = function(req, res){
 
 
 
-exports.delete = function (req, res) {
-    return null;
-};
-
-
