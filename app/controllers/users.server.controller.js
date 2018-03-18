@@ -64,7 +64,21 @@ exports.update = function(req, res){
 
 exports.login = function(req, res) {
 
-    return null;
+    //user will login with username or email and password,
+    //check if they are correct
+    //return an id with a unique token, random string of chars
+    //update db table to say they have logged in, so token is in db table
+    //return db token to the user with id in response body
+    //everything that requires user to be logged in comes with that token in the body
+
+
+    let login_data = {
+        "username": req.body.username,
+        "email": reg.body.email,
+        "password": req.body.password
+    };
+
+
 };
 
 

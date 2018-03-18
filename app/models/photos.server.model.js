@@ -24,23 +24,15 @@ exports.getOne = function(photoId, done) {
 
 
 
-exports.insert = function(valuesReceived, done) {
-    let values = [valuesReceived];
+exports.insert = function(values, done) {
 
-    db.get_pool().query("INSERT INTO photo (photo_id, photo_auctionid, photo_image_URI, photo_displayorder VALUES ?)", values, function (err, result) {
+    db.get_pool().query("INSERT INTO photo (photo_id, photo_auctionid, photo_image_URI, photo_displayorder VALUES (?, ?, ?, ?))", values, function (err, result) {
 
         if (err) return done(err);
-
         done(result);
     });
 };
 
-
-
-
-exports.alter = function() {
-    return null;
-};
 
 
 

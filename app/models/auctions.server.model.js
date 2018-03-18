@@ -114,10 +114,7 @@ exports.insert = function(values, done) {
         values, function (err, result) {
 
         //201 ok, 400 bad request, 401 unauthorized, 500 internal server error
-        if (err) {
-                console.log(err);
-                return done(err);
-            }
+        if (err) return done(err);
         done(result);
     });
 };
@@ -174,7 +171,7 @@ exports.alter = function(updateOptions, done){
     db.get_pool().query(query, qValues, function(err, result){
 
         //201 ok, 400 bad request, 401 unauthorized, 403, forbidden - bidding has begun on the auction, 404 not found, 500 internal server error
-        //if(err) return done({ERROR:"Malformed request"});
+
         if(err) return done(err);
         done(result);
     });

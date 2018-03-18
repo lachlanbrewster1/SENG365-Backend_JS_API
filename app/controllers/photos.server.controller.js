@@ -12,8 +12,9 @@ exports.list = function(req, res) {
 
 
 exports.create = function (req, res) {
+//201 ok, 400 bad request, 404 not found, 500 internal server error
 
-    let user_data = {
+    let photo_data = {
         "photo_id": req.body.photo_id,
         "photo_auctionid": req.body.photo_auctionid,
         "photo_image_URI": req.body.photo_image_URI,
@@ -21,15 +22,12 @@ exports.create = function (req, res) {
 
     };
 
-    let photo_id = user_data['photo_id'].toString();
-    let photo_auctionid = user_data['photo_auctionid'].toString();
-    let photo_image_URI = user_data['photo_image_URI'].toString();
-    let photo_displayorder = user_data['photo_displayorder'].toString();
+    let values = [photo_data.photo_id, photo_data.photo_auctionid, photo_data.photo_image_URI, photo_data.photo_displayorder];
 
+    if (photo_data.photo_id == null || photo_data.photo_auctionid == null || photo_data.photo_image_URI == null || photo_data.photo_displayorder == null ) {
+        res.status(400).send("Bad request");
+    }
 
-    let values = [
-        [photo_id], [photo_auctionid], [photo_image_URI], [photo_displayorder]
-    ];
 
     Photo.insert(values, function(result) {
         res.json(result);
@@ -39,6 +37,8 @@ exports.create = function (req, res) {
 
 
 exports.read = function (req, res) {
+    //200 ok and raw picture file, 400 bad request, 404 not found, 500 internal server error
+
     let id = req.params.photoId;
     Photo.getOne(id, function(result) {
         res.json(result);
@@ -47,19 +47,14 @@ exports.read = function (req, res) {
 
 
 
-exports.update = function (req, res) {
-    return null;
-};
 
 
 
 exports.delete = function (req, res) {
+    //201 ok, 404 not found, 500 internal server error
     return null;
 };
 
 
 
-exports.photoById = function (req, res) {
-    return null;
-};
 

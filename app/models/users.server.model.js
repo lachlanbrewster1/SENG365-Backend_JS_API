@@ -1,4 +1,5 @@
-const db = require('../../config/db');
+const db = require('../../config/db'),
+    auth = require('../lib/middleware');
 
 //where we put actual sql queries to the db
 
@@ -19,12 +20,26 @@ exports.getAll = function(done) {
 exports.getOne = function(id, done) {
     console.log(id);
 
-    db.get_pool().query('SELECT user_username as username, user_givenname as givenName, user_familyname as familyName, user_email as email, user_accountbalance as accountBalance FROM auction_user WHERE user_id = ?', id, function (err, rows) {
+    //if (id == loggedId) {    }
 
-        //200 ok, 404 not found
-        if (err) return done(err);
-        done(rows);
-    });
+    //maybe? or check if logged in user is you, else
+    if (auth.isAuthenticated()) {
+        db.get_pool().query('SELECT user_username as username, user_givenname as givenName, user_familyname as familyName, user_email as email, user_accountbalance as accountBalance FROM auction_user WHERE user_id = ?', id, function (err, rows) {
+
+            //200 ok, 404 not found
+            if (err) return done(err);
+            done(rows);
+        });
+
+    } else {
+        db.get_pool().query('SELECT user_username as username, user_givenname as givenName, user_familyname as familyName FROM auction_user WHERE user_id = ?', id, function (err, rows) {
+
+            //200 ok, 404 not found
+            if (err) return done(err);
+            done(rows);
+        });
+    }
+
 };
 
 
@@ -105,4 +120,9 @@ exports.alter = function(updateOptions, done){                      //WHAT IF NO
     });
 
 };
+
+
+exports.getIdFromToken = function(token, values) {
+
+}
 
