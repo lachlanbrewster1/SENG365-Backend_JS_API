@@ -3,13 +3,10 @@ const auctions = require('../controllers/auctions.server.controller');
 //tells our app where to go if a certain function is called
 
 
-//  NEED TO CHANGE ROOT OF ROUTE TO /api/v1/
-
-
 
 module.exports = function(app) {
     app.route('/api/v1/auctions')
-        .get(auctions.list)         //view auctions   [ ]           need biiigggg dynamic query
+        .get(auctions.list)         //view auctions   [ ]
         .post(auctions.create);      //create auction   [X]
 
     app.route('/api/v1/auctions/:id')

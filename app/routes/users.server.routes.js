@@ -8,7 +8,7 @@ module.exports = function(app) {
 
     app.route('/api/v1/users/:id')                                //NEED TO MAKE THIS WORK WITH {}   INSTEAD OF :id
         .get(users.read)               //get user by user id  [X]
-        .patch(auth.isAuthenticated, users.update);          //change some info for a user     [X]
+        .patch(users.update);          //change some info for a user     [X]
 
     app.route('/api/v1/users/login')
         .post(users.login);             //log in user by username or email    []
@@ -17,8 +17,7 @@ module.exports = function(app) {
         .post(users.logout);             //logs out user session given by auth token in header     []
 
     app.route('/api/v1/users')
-        .post(users.create)   //create user  [X]
-        .get(users.list);           //NOT IN API SPEC
+        .post(users.create);          //create user  [X]
 
 };
 

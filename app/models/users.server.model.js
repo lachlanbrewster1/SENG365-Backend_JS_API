@@ -1,15 +1,36 @@
-const db = require('../../config/db'),
-    auth = require('../lib/middleware');
+const db = require('../../config/db');
 
 //where we put actual sql queries to the db
+var random = function() {
+    return Math.random().toString(36).substr(1);
+};
+
+var generateToken = function() {
+    return random();
+};
+
+
+
+var getIdFromToken = function(token) {
+
+    db.get_pool().query('SELECT user_id FROM auction_user where user_token=?',token, function (err, rows) {
+        console.log(rows);
+        let user_id = rows[0].user_id;
+
+        if (user_id == undefined || user_id == null || user_id == ""){
+            return null;
+        }
+        return user_id;
+    });
+
+};
 
 
 //NOT IN API SPEC
 exports.getAll = function(done) {
-    db.get_pool().query('SELECT * FROM auction_user', function (err, rows) {
 
+db.get_pool().query('SELECT * FROM auction_user', function (err, rows) {
         if (err) return done({"Error" : "Error selecting"});
-
         return done(rows);
     });
 };
@@ -17,32 +38,33 @@ exports.getAll = function(done) {
 
 
 
-exports.getOne = function(id, done) {
-    console.log(id);
+exports.getOne = function(values, done) {
+    //200 ok, 404 not found, 500 internal server error
 
-    //if (id == loggedId) {    }
+    let query ='SELECT user_username as username, user_givenname as givenName, user_familyname as familyName';
 
-    //maybe? or check if logged in user is you, else
-    if (auth.isAuthenticated()) {
-        db.get_pool().query('SELECT user_username as username, user_givenname as givenName, user_familyname as familyName, user_email as email, user_accountbalance as accountBalance FROM auction_user WHERE user_id = ?', id, function (err, rows) {
+    db.get_pool().query('SELECT user_token FROM auction_user WHERE user_id=?', [values.id], function(err3, result) {
 
-            //200 ok, 404 not found
-            if (err) return done(err);
-            done(rows);
+        if (result[0].user_token != null) {
+            let userTokenInDb = result[0].user_token;
+            if (values.token == userTokenInDb && userTokenInDb != undefined) {               //NEED TO DO
+                query = query + ', user_email as email, user_accountbalance as accountBalance';
+            }
+        }
+
+        db.get_pool().query(query + ' FROM auction_user WHERE user_id = ?', [values.id], function (err, rows) {
+
+            if (rows == "") {
+                return done(404);
+            } else if (err) {
+                return done(500);
+            } else {
+                done(rows);
+            }
+
         });
-
-    } else {
-        db.get_pool().query('SELECT user_username as username, user_givenname as givenName, user_familyname as familyName FROM auction_user WHERE user_id = ?', id, function (err, rows) {
-
-            //200 ok, 404 not found
-            if (err) return done(err);
-            done(rows);
-        });
-    }
-
+    });
 };
-
-
 
 
 exports.insert = function(values, done) {
@@ -50,11 +72,13 @@ exports.insert = function(values, done) {
     db.get_pool().query("INSERT INTO auction_user (user_username, user_givenName, user_familyName, user_email, user_password) VALUES (?, ?, ?, ?, ?)", values, function (err, result) {
 
         //201 ok, 400 malformed request
-        if (err) return done(err);
-        done(result);
+        if (err) {
+            return done(400);
+        } else {
+            return done(result);
+        }
     });
 };
-
 
 
 exports.alter = function(updateOptions, done){                      //WHAT IF NO VALUES ARE CHANGED, HANDLING PASSWORD?
@@ -98,31 +122,130 @@ exports.alter = function(updateOptions, done){                      //WHAT IF NO
         query = query + ' user_salt=?,';
         qValues.push(updateOptions.salt);
     }
-    if (updateOptions.token != undefined) {
-        query = query + ' user_token=?,';
-        qValues.push(updateOptions.token);
-    }
 
 
 
     query = query.substring(0, query.length-1) + ' WHERE user_id=?';
     qValues.push(updateOptions.id);
 
-    console.log(query);
-    console.log(qValues);
+    console.log(qValues.length);
+    if (qValues.length == 2) {
+        return done(400);
+    }
 
-    db.get_pool().query(query, qValues, function(err, result){
+    db.get_pool().query('SELECT * from auction_user where user_id=?', [updateOptions.id], function(err2, result) {
+        if (result == "") {
+            return done(404);
+        }
 
-        //201 ok, 401 unauthorized
-        //if(err) return done({ERROR:"Malformed request"});
-        if(err) return done(err);
-        done(result);
+        db.get_pool().query('SELECT user_token FROM auction_user WHERE user_id=?', [updateOptions.id], function(err3, result) {
+            if (result == "") {
+                return done(401);
+            }
+            if (result[0].user_token == null) {
+                return done(401);
+            } else {
+                let userTokenInDb = result[0].user_token;
+                if (updateOptions.token != userTokenInDb && userTokenInDb != undefined) {               //NEED TO DO
+                    return done(401);
+                }
+            }
+
+
+            db.get_pool().query(query, qValues, function(err4, result){
+
+                //201 ok, 401 unauthorized, 500 server error
+                if(err4) {
+                    return done(500);
+                }
+                else {
+                    return done(result);
+                }
+
+            });
+
+        });
+
+    });
+};
+
+
+exports.loginUsername = function(login_data, done) {
+
+
+    db.get_pool().query('SELECT * FROM auction_user WHERE user_username =? and user_password=?', [login_data.username, login_data.password], function (err, rows) {
+
+        if (err) {
+            return done(400);
+        }
+        if (rows == "") {
+            return done(400);
+        }
+
+        let user_id = rows[0].user_id;
+
+        let token = generateToken();
+
+        db.get_pool().query('UPDATE auction_user SET user_token=? WHERE user_username=?', [token, login_data.username], function (err, rows1) {
+
+            if (err) {
+                return done(400)
+            }
+
+            return done([token, user_id])
+
+        })
+
     });
 
 };
 
 
-exports.getIdFromToken = function(token, values) {
+exports.loginEmail = function(login_data, done) {
 
-}
+    db.get_pool().query('SELECT * FROM auction_user WHERE user_email=? and user_password=?', [login_data.email, login_data.password], function (err, rows) {
+
+        if (err) {
+            return done(400);
+        }
+        if (rows == "") {
+            return done(401);
+        }
+
+        let user_id = rows[0].user_id;
+        let token = generateToken();
+
+        db.get_pool().query('UPDATE auction_user SET user_token=? WHERE user_email=?', [token, login_data.email], function (err, rows1) {
+
+            if (err) {
+                return done(400)
+            }
+
+            return done([token, user_id])
+
+
+        });
+    });
+
+};
+
+
+exports.logout = function (tokenLogout, done) {
+
+    db.get_pool().query('UPDATE auction_user SET user_token = NULL WHERE user_token=?', tokenLogout, function (err, rows) {
+
+        if (err) {
+            return done(500);
+        } else if (rows.affectedRows == 0) {
+            return done(401);
+        } else {
+            return done(rows)
+        }
+
+    });
+
+};
+
+
+
 

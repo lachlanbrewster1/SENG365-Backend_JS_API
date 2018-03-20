@@ -5,7 +5,11 @@ const Photo = require('../models/photos.server.model');
 
 exports.list = function(req, res) {
     Photo.getAll(function(result) {
-        res.json(result);
+        if (result == 404) res.sendStatus(404).send('Not found');
+        else if (result == 400) res.sendStatus(400).send('Bad request');
+        else if (result == 401) res.sendStatus(401).send('Unauthorized');
+        else if (result == 500) res.sendStatus(500).send('Internal server error');
+        else res.json(result);
     });
 };
 
@@ -30,7 +34,11 @@ exports.create = function (req, res) {
 
 
     Photo.insert(values, function(result) {
-        res.json(result);
+        if (result == 404) res.sendStatus(404).send('Not found');
+        else if (result == 400) res.sendStatus(400).send('Bad request');
+        else if (result == 401) res.sendStatus(401).send('Unauthorized');
+        else if (result == 500) res.sendStatus(500).send('Internal server error');
+        else res.json(result);
     });
 };
 
@@ -41,7 +49,11 @@ exports.read = function (req, res) {
 
     let id = req.params.photoId;
     Photo.getOne(id, function(result) {
-        res.json(result);
+        if (result == 404) res.sendStatus(404).send('Not found');
+        else if (result == 400) res.sendStatus(400).send('Bad request');
+        else if (result == 401) res.sendStatus(401).send('Unauthorized');
+        else if (result == 500) res.sendStatus(500).send('Internal server error');
+        else res.json(result);
     });
 };
 

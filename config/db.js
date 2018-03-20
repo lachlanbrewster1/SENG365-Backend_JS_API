@@ -9,7 +9,8 @@ exports.connect = function(done) {
         host: 'mysql3.csse.canterbury.ac.nz',
         user: 'lbr63',
         password: '37248471',
-        database: 'lbr63'
+        database: 'lbr63',
+        multipleStatements: true
     });
     done();
 };

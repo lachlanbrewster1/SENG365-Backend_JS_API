@@ -1,7 +1,7 @@
 const db = require('../../config/db');
 
 
-exports.resample = function(done) {
+exports.resampleDatabase = function(done) {
     db.get_pool().query('INSERT INTO auction_user (user_username, user_givenname, user_familyname, user_email, user_password, user_accountbalance, user_reputation)\n' +
         'VALUES\n' +
         '(\'black.panther\', \'T\', \'Challa\', \'black.panther@super.heroes\', \'Wakanda\', \'0.00\' , \'500\'),\n' +
@@ -70,7 +70,7 @@ exports.resample = function(done) {
 
 
 
-exports.reset = function(done) {
+exports.resetDatabase = function(done) {
 
     db.get_pool().query('# MySQL scripts for dropping existing tables and recreating the database table structure\n' +
         '# version  0.0.5; 16 March 2018\n' +

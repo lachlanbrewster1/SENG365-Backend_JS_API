@@ -1,0 +1,14 @@
+1.  If a user tries to logout WITHOUT any auth token in header or with a auth token that doesn't correspond to any user_token field, then this is unauthorized 401
+
+2.  Inserting a user, bid or auction with ANY missing fields (compared to the example json in the api), results in a 400 bad request
+
+3.  
+
+
+
+
+
+
+read bids, check if auction_id is a number?
+
+user control, auction control done
