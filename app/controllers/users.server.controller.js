@@ -55,9 +55,8 @@ exports.read = function (req, res) {
 
     let values = {
         "id": req.params.id,
-        "token": req.headers.token
+        "token": req.headers['x-authorization']
     };
-    console.log(values);
 
     User.getOne(values, function(result) {
         if (result == 404) res.sendStatus(404);
@@ -80,7 +79,7 @@ exports.update = function(req, res){
         "accountBalance": req.body.accountBalance,
         "reputation": req.body.reputation,
         "salt": req.body.salt,
-        "token": req.headers.token
+        "token": req.headers['x-authorization']
     };
 
     if (updateOptions.id == undefined) {
@@ -167,7 +166,7 @@ exports.login = function(req, res) {
 
 exports.logout = function(req, res) {
 
-    let tokenLogout = req.headers.token;
+    let tokenLogout = req.headers['x-authorization'];
 
     if (tokenLogout == undefined) {
         return res.sendStatus(401)

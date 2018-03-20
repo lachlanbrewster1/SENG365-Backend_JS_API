@@ -53,39 +53,48 @@ exports.insert = function(values, done) {
 
     //MAYBE A CHECK TO SEE IF THE USER EXISTS, WOULD THIS BE A 404?
 
-    db.get_pool().query("SELECT * FROM auction WHERE auction_id=?", values[0], function (err2, result) {
-        if (err2) {
-            return done(404);
-        }
-        //MAYBE 400?
-
-        if (result == "") {
-            return done(404);
-        }
+    db.get_pool().query('SELECT auction_startingprice FROM auction where auction_id=?', values[0], function(err5, result) {
+       if (result[0].auction_startingprice > values[1])  {
+           return done(400);
+       }
 
 
-        db.get_pool().query('SELECT user_id FROM auction_user where user_token=?',values[3], function (err, rows) {
-
-            if (rows == "") {
-                return done(401);
+        db.get_pool().query("SELECT * FROM auction WHERE auction_id=?", values[0], function (err2, result) {
+            if (err2) {
+                return done(404);
             }
-            let user_id = rows[0].user_id;
-            if (user_id == undefined || user_id == null || user_id == ""){
-                return done(401);
+            //MAYBE 400?
+
+            if (result == "") {
+                return done(404);
             }
 
-            values.pop();
-            values.push(user_id);
 
-            db.get_pool().query("INSERT INTO bid (bid_auctionid, bid_amount, bid_datetime, bid_userid) VALUES (?, ?, ?, ?)", values, function (err, result) {
+            db.get_pool().query('SELECT user_id FROM auction_user where user_token=?',values[3], function (err, rows) {
 
-                if (err) {
-                    //console.log(err);
-                    return done(400);
+                if (rows == "") {
+                    return done(401);
                 }
-                else {
-                    return done(result);
+                let user_id = rows[0].user_id;
+                if (user_id == undefined || user_id == null || user_id == ""){
+                    return done(401);
                 }
+
+                values.pop();
+                values.push(user_id);
+
+                db.get_pool().query("INSERT INTO bid (bid_auctionid, bid_amount, bid_datetime, bid_userid) VALUES (?, ?, ?, ?)", values, function (err, result) {
+
+                    if (err) {
+                        //console.log(err);
+                        return done(400);
+                    }
+                    else {
+                        return done(result);
+                    }
+
+
+                });
 
             });
 
