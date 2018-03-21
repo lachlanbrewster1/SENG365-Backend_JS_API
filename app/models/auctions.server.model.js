@@ -297,7 +297,6 @@ exports.alter = function(updateOptions, done){
 
                     db.get_pool().query(query, qValues, function(err, result){
                         //201 ok, 400 bad request, 401 unauthorized, 403, forbidden - bidding has begun on the auction, 404 not found, 500 internal server error
-                        console.log(4);
 
                         if(err) {
                             return done(400);

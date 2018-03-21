@@ -5,13 +5,23 @@ const fs = require('fs');
 //these functions are called, which reference the functions within our model file
 
 
+
 exports.list = function(req, res) {
-    Photo.getAll(function(result) {
+
+    let photo_data = {
+        "photo_id": req.params.id,
+        "token": req.get('X-Authorization'),
+        "contentType": req.headers['content-type'],
+        "photoName":"string",
+        "req": req
+    };
+
+    Photo.listPhoto(photo_data, function(result) {
         if (result == 404) res.sendStatus(404);
         else if (result == 400) res.sendStatus(400);
         else if (result == 401) res.sendStatus(401);
         else if (result == 500) res.sendStatus(500);
-        else res.json(result);
+        else res.sendFile(result);
     });
 };
 
@@ -19,56 +29,82 @@ exports.list = function(req, res) {
 
 exports.create = function (req, res) {
 //201 ok, 400 bad request, 404 not found, 500 internal server error, 401 unauthorized
-
     let photo_data = {
         "photo_id": req.params.id,
-        "token": req.body['x-authorization']
+        "token": req.get('X-Authorization'),
+        "contentType": req.headers['content-type'],
+        "photoName":"string",
+        "req": req
     };
-
     let photo_id = photo_data.photo_id;
-    //let photo = req.body.default.png;
-    console.log(req.body);
 
-    if (photo_id == null || photo_id == undefined ) {
-        res.status(400).send("Bad request");
+
+    if (photo_data.token == undefined) {
+        res.sendStatus(401);
+        return;
+    }
+
+    if (photo_id == undefined || photo_data.contentType == undefined) {
+        res.sendStatus(400);
+        return;
+    }
+
+    if (photo_data.contentType == "png" || photo_data.contentType == "jpg") {
+        photo_data.photoName = photo_data.photo_id + "." + photo_data.contentType;
+    } else {
+        res.sendStatus(400);
+        return;
     }
 
 
-    /*Photo.insert(values, function(result) {
+    Photo.postPhoto(photo_data, function(result) {
         if (result == 404) res.sendStatus(404);
         else if (result == 400) res.sendStatus(400);
         else if (result == 401) res.sendStatus(401);
         else if (result == 500) res.sendStatus(500);
-        else res.json(result);
-    });*/
-};
-
-
-
-exports.read = function (req, res) {
-    //200 ok and raw picture file, 400 bad request, 404 not found, 500 internal server error
-
-    let id = req.params.photoId;
-    let token = req.body['x-authorization'];
-
-
-    Photo.getOne(id, function(result) {
-        if (result == 404) res.sendStatus(404);
-        else if (result == 400) res.sendStatus(400);
-        else if (result == 401) res.sendStatus(401);
-        else if (result == 500) res.sendStatus(500);
-        else res.json(result);
+        else res.sendStatus(201);
     });
 };
 
 
 
-
-
-
 exports.delete = function (req, res) {
     //201 ok, 404 not found, 500 internal server error
-    return null;
+
+    let photo_data = {
+        "photo_id": req.params.id,
+        "token": req.get('X-Authorization'),
+        "contentType": req.headers['content-type'],
+        "photoName":"string",
+        "req": req
+    };
+
+
+    if (photo_data.token == undefined) {
+        res.sendStatus(401);
+        return;
+    }
+
+    if (photo_data.photo_id == undefined || photo_data.contentType == undefined) {
+        res.sendStatus(404);
+        return;
+    }
+
+    if (photo_data.contentType == "png" || photo_data.contentType == "jpg") {
+        photo_data.photoName = photo_data.photo_id + "." + photo_data.contentType;
+    } else {
+        res.sendStatus(404);
+        return;
+    }
+
+
+    Photo.remove(photo_data, function(result) {
+        if (result == 404) res.sendStatus(404);
+        else if (result == 400) res.sendStatus(400);
+        else if (result == 401) res.sendStatus(401);
+        else if (result == 500) res.sendStatus(500);
+        else res.sendStatus(201);
+    });
 };
 
 

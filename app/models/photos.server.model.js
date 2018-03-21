@@ -1,25 +1,113 @@
 const db = require('../../config/db');
+const fs = require('fs');
+const photosPath = 'app/photos/';
+const path = require('path');
+const appDir = path.dirname(require.main.filename);
+
 
 //where we put actual sql queries to the db
 
-exports.getAll = function(done) {
-    db.get_pool().query('SELECT * FROM photo', function (err, rows) {
+exports.listPhoto = function (values, done) {
 
-        if (err) return done({"Error" : "Error selecting"});
+    db.get_pool().query('SELECT * FROM auction WHERE auction_id=?', values.photo_id, function (err, result1) {
 
-        return done(rows);
+        if (result1 == "") {
+            return done(404);
+        }
+
+
+        let result = (appDir + '/' + photosPath + values.photo_id + '.' + values.contentType);
+        console.log(result);
+        done(result);
+
     });
 };
 
 
 
-exports.getOne = function(photoId, done) {
 
-    db.get_pool().query('SELECT * FROM photo WHERE photo_id = ?', photoId, function (err, rows) {
-        if (err) return done(err);
-        done(rows);
+exports.postPhoto = function(values, done) {
+
+//
+
+    db.get_pool().query('SELECT * FROM auction WHERE auction_id=?', values.photo_id, function (err, result1) {
+
+        if (result1 == "") {
+            return done(404);
+        }
+
+
+        db.get_pool().query('SELECT user_token FROM auction_user WHERE user_id=(SELECT auction_userid FROM auction WHERE auction_id=?)',
+            values.photo_id, function(err, result) {
+
+                if (result == "") {
+                    return done(401);
+                }
+
+                if (values.token != result[0].user_token) {
+                    return done(401);
+                }
+
+                values.req.pipe(fs.createWriteStream(photosPath + values.photoName));
+                done(201);
+
+
+
+        });
+
     });
+
 };
+
+
+
+
+
+exports.remove = function(values, done) {
+
+
+    db.get_pool().query('SELECT * FROM auction WHERE auction_id=?', values.photo_id, function (err, result1) {
+
+        if (result1 == "") {
+            return done(404);
+        }
+
+
+
+        db.get_pool().query('SELECT user_token FROM auction_user WHERE user_id=(SELECT auction_userid FROM auction WHERE auction_id=?)',
+            values.photo_id, function(err, result) {
+
+                let pathToDelete = (appDir + '/' + photosPath + values.photo_id + '.' + values.contentType);
+
+                if (result == "") {
+                    return done(401);
+                }
+
+                if (values.token != result[0].user_token) {
+                    return done(401);
+                }
+
+                console.log(pathToDelete);
+                fs.unlink(pathToDelete, (err) => {
+
+                    if (err) {
+                        return done(404);
+                    } else {
+                        return done(200);
+                    }
+
+                })
+
+        });
+
+    });
+
+};
+
+
+
+
+
 
 
 
@@ -32,11 +120,3 @@ exports.insert = function(values, done) {
         done(result);
     });
 };
-
-
-
-
-exports.remove = function() {
-    return null;
-};
-

@@ -44,7 +44,7 @@ exports.create = function (req, res) {
         "endingdate": req.body.endDateTime,
         "reserveprice": req.body.reservePrice,
         "startingprice": req.body.startingBid,
-        "token": req.headers['x-authorization']
+        "token": req.get('X-Authorization')
     };
 
     //console.log(auction_data);
@@ -84,7 +84,7 @@ exports.read = function (req, res) {
 
     let values = {
         "auction_id": req.params.id,
-        "token": req.headers['x-authorization']
+        "token": req.get('X-Authorization'),
     };
 
     Auction.getOne(values, function(result) {
@@ -113,7 +113,7 @@ exports.update = function(req, res){
         "reserveprice": req.body.reservePrice,
         "startingprice": req.body.startingBid,
         "deactivated": req.body.deactivated,
-        "token": req.headers['x-authorization']
+        "token": req.get('X-Authorization'),
     };
 
     if (updateOptions.id == undefined) {
@@ -140,7 +140,7 @@ exports.createBid = function (req, res) {
     let auction_data = {
         "bid_auctionid": req.params.id,
         "bid_amount": req.query.amount,
-        "token": req.headers['x-authorization'],
+        "token": req.get('X-Authorization'),
         "bid_datetime": Date.now()                       //need to convert to sql time                                //NEED TO DO
     };
 

@@ -9,5 +9,5 @@ module.exports = function(app) {
         .post(photos.create)      //add photo to auction         []
         .delete(photos.delete);       //delete auction photo       []
 
-
 };
+

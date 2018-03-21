@@ -55,7 +55,7 @@ exports.read = function (req, res) {
 
     let values = {
         "id": req.params.id,
-        "token": req.headers['x-authorization']
+        "token": req.get('X-Authorization')
     };
 
     User.getOne(values, function(result) {
@@ -79,7 +79,7 @@ exports.update = function(req, res){
         "accountBalance": req.body.accountBalance,
         "reputation": req.body.reputation,
         "salt": req.body.salt,
-        "token": req.headers['x-authorization']
+        "token": req.get('X-Authorization')
     };
 
     if (updateOptions.id == undefined) {
@@ -166,7 +166,8 @@ exports.login = function(req, res) {
 
 exports.logout = function(req, res) {
 
-    let tokenLogout = req.headers['x-authorization'];
+    let tokenLogout = req.get('X-Authorization')
+
 
     if (tokenLogout == undefined) {
         return res.sendStatus(401)
