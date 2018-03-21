@@ -34,10 +34,3 @@
 
 
 6. the token in the header for requests that need authorization are given by the key name 'X-Authorization', and content type as 'Content-Type'
-
-
-
-
-read bids, check if auction_id is a number?
-
-user control, auction control done
