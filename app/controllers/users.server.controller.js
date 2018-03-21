@@ -4,7 +4,6 @@ const User = require('../models/users.server.model');
 
 
 
-
 //NOT IN API SPEC
 exports.list = function(req, res) {
     User.getAll(function(result) {
