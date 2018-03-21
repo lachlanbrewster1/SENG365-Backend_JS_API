@@ -27,12 +27,15 @@ exports.create = function (req, res) {
 
     let values = [user_data.username, user_data.givenName, user_data.familyName, user_data.email, user_data.password];
 
+    //console.log(user_data);
+
 
     if (user_data.username == undefined || user_data.givenName == undefined || user_data.familyName == undefined || user_data.email == undefined || user_data.password == undefined){
         res.sendStatus(400);
         return;
     }
 
+    try {
     User.insert(values, function(result) {
         if (result == 404) res.sendStatus(404);
         else if (result == 400) res.sendStatus(400);
@@ -46,6 +49,9 @@ exports.create = function (req, res) {
             res.status(201).json(dataReturn);
         }
     });
+    } catch (e) {
+        res.sendStatus(500);
+    }
 };
 
 
@@ -58,6 +64,7 @@ exports.read = function (req, res) {
         "token": req.get('X-Authorization')
     };
 
+    try {
     User.getOne(values, function(result) {
         if (result == 404) res.sendStatus(404);
         else if (result == 400) res.sendStatus(400);
@@ -65,6 +72,9 @@ exports.read = function (req, res) {
         else if (result == 500) res.sendStatus(500);
         else res.json(result);
     });
+    } catch (e) {
+        res.sendStatus(500);
+    }
 };
 
 
@@ -92,7 +102,7 @@ exports.update = function(req, res){
         return;
     }
 
-
+    try {
     User.alter(updateOptions, function(result){
         if (result == 404) res.sendStatus(404);
         else if (result == 400) res.sendStatus(400);
@@ -100,6 +110,9 @@ exports.update = function(req, res){
         else if (result == 500) res.sendStatus(500);
         else res.sendStatus(201);
     })
+    } catch (e) {
+        res.sendStatus(500);
+    }
 };
 
 
@@ -125,9 +138,9 @@ exports.login = function(req, res) {
         return;
     }
 
+    try {
     if (login_data.username == undefined) {
         User.loginEmail(login_data, function(result) {
-
             if (result == 404) res.sendStatus(404);
             else if (result == 400) res.sendStatus(400);
             else if (result == 500) res.sendStatus(500);
@@ -160,29 +173,31 @@ exports.login = function(req, res) {
 
         });
     }
-
+    } catch (e) {
+        res.sendStatus(500);
+    }
 };
 
 
 exports.logout = function(req, res) {
 
-    let tokenLogout = req.get('X-Authorization')
+    let tokenLogout = req.get('X-Authorization');
 
 
     if (tokenLogout == undefined) {
         return res.sendStatus(401)
     }
 
+    try {
     User.logout(tokenLogout, function (result) {
-
         if (result == 401) res.sendStatus(401);
         else if (result == 500) res.sendStatus(500);
         else res.sendStatus(200);
 
     });
-
-
-    return null;
+    } catch (e) {
+        res.sendStatus(500);
+    }
 };
 
 

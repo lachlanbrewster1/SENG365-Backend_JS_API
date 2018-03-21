@@ -19,9 +19,8 @@ exports.list = function(req, res) {
         "winner": req.query.winner
     };
 
-    console.log(auction_search);
 
-
+    try {
     Auction.getAll(auction_search, function(result) {
         if (result == 404) res.sendStatus(404);
         else if (result == 400) res.sendStatus(400);
@@ -29,12 +28,17 @@ exports.list = function(req, res) {
         else if (result == 500) res.sendStatus(500);
         else res.json(result);
     });
+    } catch (e) {
+        res.sendStatus(500);
+    }
 };
 
 
 
 exports.create = function (req, res) {
     //201 ok, 400 bad request, 401 unauthorized, 500 internal server error
+
+
 
     let auction_data = {
         "categoryId": req.body.categoryId,
@@ -62,19 +66,24 @@ exports.create = function (req, res) {
     }
 
 
-    Auction.insert(auction_data, function(result) {
-        if (result == 404) res.sendStatus(404);
-        else if (result == 400) res.sendStatus(400);
-        else if (result == 401) res.sendStatus(401);
-        else if (result == 500) res.sendStatus(500);
-        else {
-            dataReturn = {
-                "id": 0
-            };
-            dataReturn.id = result["insertId"];
-            res.status(201).json(dataReturn);
-        }
-    });
+    try {
+        Auction.insert(auction_data, function (result) {
+            if (result == 404) res.sendStatus(404);
+            else if (result == 400) res.sendStatus(400);
+            else if (result == 401) res.sendStatus(401);
+            else if (result == 500) res.sendStatus(500);
+            else {
+                dataReturn = {
+                    "id": 0
+                };
+                dataReturn.id = result["insertId"];
+                res.status(201).json(dataReturn);
+            }
+        });
+
+    } catch (e) {
+        res.sendStatus(500);
+    }
 };
 
 
@@ -87,8 +96,8 @@ exports.read = function (req, res) {
         "token": req.get('X-Authorization'),
     };
 
+    try {
     Auction.getOne(values, function(result) {
-
         if (result == 404) res.sendStatus(404);
         else if (result == 400) res.sendStatus(400);
         else if (result == 401) res.sendStatus(401);
@@ -96,6 +105,9 @@ exports.read = function (req, res) {
         else res.json(result);
 
     });
+    } catch (e) {
+        res.sendStatus(500);
+    }
 };
 
 
@@ -121,7 +133,7 @@ exports.update = function(req, res){
         return;
     }
 
-
+    try {
     Auction.alter(updateOptions, function(result){
         if (result == 404) res.sendStatus(404);
         else if (result == 400) res.sendStatus(400);
@@ -130,6 +142,9 @@ exports.update = function(req, res){
         else if (result == 500) res.sendStatus(500);
         else res.sendStatus(201);
     })
+    } catch (e) {
+        res.sendStatus(500);
+    }
 };
 
 
@@ -151,10 +166,12 @@ exports.createBid = function (req, res) {
     let values = [auction_data.bid_auctionid, auction_data.bid_amount, auction_data.bid_datetime, auction_data.token];
 
     if (auction_data.bid_auctionid == undefined || auction_data.bid_amount == undefined || auction_data.bid_datetime == undefined) {
+        console.log(1);
         res.sendStatus(400);
         return;
     }
 
+    try {
     Bid.insert(values, function(result) {
         if (result === 404) res.sendStatus(404);
         else if (result === 400) res.sendStatus(400);
@@ -163,6 +180,9 @@ exports.createBid = function (req, res) {
         else if (result === 500) res.sendStatus(500);
         else res.status(201).json(result);
     });
+    } catch (e) {
+        res.sendStatus(500);
+    }
 };
 
 
@@ -178,7 +198,7 @@ exports.readBids = function (req, res) {
     }
 
     //IF ID == UNDEFINED MAYBE 400? OR IF ID NOT A NUMBER MAYBE
-
+    try {
     Bid.getBidsAuction(auction_id, function(result) {
         if (result == 404) res.sendStatus(404);
         else if (result == 400) res.sendStatus(400);
@@ -186,6 +206,9 @@ exports.readBids = function (req, res) {
         else if (result == 403) res.sendStatus(403);
         else res.json(result);
     });
+    } catch (e) {
+        res.sendStatus(500);
+    }
 };
 
 

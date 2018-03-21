@@ -1,5 +1,4 @@
-const users = require('../controllers/users.server.controller'),
-        auth = require('../lib/middleware');
+const users = require('../controllers/users.server.controller');
 
 //tells our app where to go if a certain function is called
 

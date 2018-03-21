@@ -43,25 +43,32 @@ exports.getOne = function(values, done) {
 
     let query ='SELECT user_username as username, user_givenname as givenName, user_familyname as familyName';
 
-    db.get_pool().query('SELECT user_token FROM auction_user WHERE user_id=?', [values.id], function(err3, result) {
+    db.get_pool().query('Select * from auction_user where user_id=?', values.id, function (err, rows) {
 
-        if (result[0].user_token != null) {
-            let userTokenInDb = result[0].user_token;
-            if (values.token == userTokenInDb && userTokenInDb != undefined) {               //NEED TO DO
-                query = query + ', user_email as email, user_accountbalance as accountBalance';
-            }
+        if (rows == "") {
+            return done(404);
         }
 
-        db.get_pool().query(query + ' FROM auction_user WHERE user_id = ?', [values.id], function (err, rows) {
+        db.get_pool().query('SELECT user_token FROM auction_user WHERE user_id=?', [values.id], function(err3, result) {
 
-            if (rows == "") {
-                return done(404);
-            } else if (err) {
-                return done(500);
-            } else {
-                done(rows);
+            if (result[0].user_token != null) {
+                let userTokenInDb = result[0].user_token;
+                if (values.token == userTokenInDb && userTokenInDb != undefined) {               //NEED TO DO
+                    query = query + ', user_email as email, user_accountbalance as accountBalance';
+                }
             }
 
+            db.get_pool().query(query + ' FROM auction_user WHERE user_id = ?', [values.id], function (err, rows) {
+
+                if (rows == "") {
+                    return done(404);
+                } else if (err) {
+                    return done(500);
+                } else {
+                    done(rows);
+                }
+
+            });
         });
     });
 };
@@ -86,10 +93,7 @@ exports.alter = function(updateOptions, done){                      //WHAT IF NO
     let query = 'UPDATE auction_user SET';
     let qValues = [];
 
-    if (updateOptions.id != undefined) {
-        query = query + ' user_id=?,';
-        qValues.push(updateOptions.id);
-    }
+
     if (updateOptions.username != undefined) {
         query = query + ' user_username=?,';
         qValues.push(updateOptions.username);
@@ -124,12 +128,10 @@ exports.alter = function(updateOptions, done){                      //WHAT IF NO
     }
 
 
-
     query = query.substring(0, query.length-1) + ' WHERE user_id=?';
     qValues.push(updateOptions.id);
 
-    console.log(qValues.length);
-    if (qValues.length == 2) {
+    if (qValues.length == 1) {
         return done(400);
     }
 

@@ -54,6 +54,10 @@ exports.insert = function(values, done) {
     //MAYBE A CHECK TO SEE IF THE USER EXISTS, WOULD THIS BE A 404?
 
     db.get_pool().query('SELECT auction_startingprice FROM auction where auction_id=?', values[0], function(err5, result) {
+        if (result == "") {
+            return done(400);
+        }
+
        if (result[0].auction_startingprice > values[1])  {
            return done(400);
        }

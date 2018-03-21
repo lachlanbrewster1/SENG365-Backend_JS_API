@@ -16,6 +16,7 @@ exports.list = function(req, res) {
         "req": req
     };
 
+    try {
     Photo.listPhoto(photo_data, function(result) {
         if (result == 404) res.sendStatus(404);
         else if (result == 400) res.sendStatus(400);
@@ -23,6 +24,9 @@ exports.list = function(req, res) {
         else if (result == 500) res.sendStatus(500);
         else res.sendFile(result);
     });
+    } catch (e) {
+        res.sendStatus(500);
+    }
 };
 
 
@@ -56,7 +60,7 @@ exports.create = function (req, res) {
         return;
     }
 
-
+    try {
     Photo.postPhoto(photo_data, function(result) {
         if (result == 404) res.sendStatus(404);
         else if (result == 400) res.sendStatus(400);
@@ -64,6 +68,9 @@ exports.create = function (req, res) {
         else if (result == 500) res.sendStatus(500);
         else res.sendStatus(201);
     });
+    } catch (e) {
+        res.sendStatus(500);
+    }
 };
 
 
@@ -97,7 +104,7 @@ exports.delete = function (req, res) {
         return;
     }
 
-
+    try {
     Photo.remove(photo_data, function(result) {
         if (result == 404) res.sendStatus(404);
         else if (result == 400) res.sendStatus(400);
@@ -105,6 +112,9 @@ exports.delete = function (req, res) {
         else if (result == 500) res.sendStatus(500);
         else res.sendStatus(201);
     });
+    } catch (e) {
+        res.sendStatus(500);
+    }
 };
 
 

@@ -38,6 +38,20 @@ exports.getAll = function(auction_search, done) {
             else return done(rows);
     });
     */
+    let category = "";
+    if (auction_search.categoryId != undefined) {
+        category = 'where auction_categoryid = ' + auction_search.categoryId;
+    }
+
+
+    db.get_pool().query('SELECT * FROM auction ' + category + 'LIMIT ?, ?',[parseInt(auction_search.count), parseInt(auction_search.startIndex)], function (err, rows) {
+
+        if (err) return done(400);
+        else return done(rows);
+
+
+    });
+
 
 };
 

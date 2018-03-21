@@ -2,9 +2,38 @@
 
 2.  Inserting a user, bid or auction with ANY missing fields (compared to the example json in the api), results in a 400 bad request
 
-3.  
+3.  If a user posts a photo, but doesnt actually attach a photo, this still creates a png/jpg file. I would assume that the front end would handle this.
+
+4.  a 400 error code is used for bad input, and when a sql query fails for an unexplainable reason, usually in a query if there is an error then a 400 will be returned. 
+   500 codes are for when everything fails, this is why i have my try catch blocks in controller. I struggled to decipher when some error codes shoudl be returned over others. 
+   For example a 401 vs a 400 when a user trys to update a profile that doesnt match any user token in the database, 
+   does this mean a bad request (400) or unauthorized because the token is wrong (401)
+
+5. Assuming that when updating a user and auction the values provides in the body have labels as following (because we weren't given any examples of how this would be provided)
+
+	"id" : req.params.id,
+        "username": req.body.username,
+        "givenname": req.body.givenName,
+        "familyname": req.body.familyName,
+        "email": req.body.email,
+        "password": req.body.password,
+        "accountBalance": req.body.accountBalance,
+        "reputation": req.body.reputation,
+        "salt": req.body.salt
 
 
+	"id" : req.params.id,
+        "categoryId": req.body.categoryId,
+        "title": req.body.title,
+        "description": req.body.description,
+        "startingdate": req.body.startDateTime,
+        "endingdate": req.body.endDateTime,
+        "reserveprice": req.body.reservePrice,
+        "startingprice": req.body.startingBid,
+        "deactivated": req.body.deactivated
+
+
+6. the token in the header for requests that need authorization are given by the key name 'X-Authorization', and content type as 'Content-Type'
 
 
 

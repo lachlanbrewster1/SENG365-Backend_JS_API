@@ -1,14 +1,15 @@
-const database = require('../models/database.server.model');
+const database1 = require('../models/database.server.model');
 
-exports.resample = function(req, res) {
-    database.resampleDatabase(function(result) {
+exports.resampleDb = function(req, res) {
+    database1.resampleDatabase(function(result) {
         res.json(result);
     })
 };
 
 
-exports.reset = function(req, res) {
-    database.resetDatabase(function(result) {
+exports.resetDb = function(req, res) {
+    console.log(1);
+    database1.resetDatabase(function(result) {
         res.json(result);
     })
 };
