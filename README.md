@@ -1,3 +1,5 @@
+# Backend for auction API in javscript using Node
+
 # Template for SENG365 student repo
 
 # Usage
